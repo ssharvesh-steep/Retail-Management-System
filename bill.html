@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm" id="bill">
+                <div class="card-header bg-white border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-file-invoice text-primary me-2"></i>
+                            Sale Receipt
+                        </h3>
+                        <button onclick="window.print()" class="btn btn-outline-primary d-print-none">
+                            <i class="fas fa-print me-2"></i>Print Receipt
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Store Information -->
+                    <div class="text-center mb-4">
+                        <h2 class="store-name">Retail Store</h2>
+                        <p class="store-address">123 Main Street, City, State</p>
+                        <p class="store-contact">Phone: (123) 456-7890</p>
+                    </div>
+
+                    <!-- Bill Details -->
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <h5 class="text-muted mb-2">Bill Number</h5>
+                            <p class="fw-bold">{{ bill.bill_number }}</p>
+                            <h5 class="text-muted mb-2">Date</h5>
+                            <p>{{ bill.date }}</p>
+                        </div>
+                        <div class="col-6 text-end">
+                            <h5 class="text-muted mb-2">Staff</h5>
+                            <p>{{ bill.staff_name }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Items Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Product</th>
+                                    <th class="text-end">Quantity</th>
+                                    <th class="text-end">Unit Price</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in bill.items %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ item.product_name }}</td>
+                                    <td class="text-end">{{ item.quantity }}</td>
+                                    <td class="text-end">₹{{ "%.2f"|format(item.unit_price) }}</td>
+                                    <td class="text-end">₹{{ "%.2f"|format(item.total_price) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Total Amount:</strong></td>
+                                    <td class="text-end"><strong>₹{{ "%.2f"|format(bill.total_price) }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="text-center mt-4">
+                        <p class="text-muted mb-2">Thank you for your business!</p>
+                        <p class="text-muted small">This is a computer-generated receipt and does not require a signature.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons (Hidden when printing) -->
+            <div class="d-grid gap-2 mt-3 d-print-none">
+                <a href="{{ url_for('staff_billing') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>New Sale
+                </a>
+                <a href="{{ url_for('staff_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-home me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Print Styles */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #bill, #bill * {
+        visibility: visible;
+    }
+    #bill {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    .d-print-none {
+        display: none !important;
+    }
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .table {
+        border-collapse: collapse !important;
+    }
+    .table td, .table th {
+        border: 1px solid #dee2e6 !important;
+    }
+}
+
+/* Regular Styles */
+.card {
+    border-radius: 0.5rem;
+}
+.btn {
+    border-radius: 0.5rem;
+}
+.store-name {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+.store-address, .store-contact {
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+.table {
+    margin-bottom: 0;
+}
+.table th {
+    background-color: #f8f9fa;
+}
+.text-muted {
+    color: #6c757d !important;
+}
+</style>
+{% endblock %} 

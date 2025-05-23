@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Staff Dashboard</h2>
+    
+    <div class="row mt-4">
+        <!-- Today's Sales Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Today's Sales</h5>
+                    <p class="card-text display-4">{{ today_sales|currency }}</p>
+                    <p class="text-{% if sales_trend > 0 %}success{% else %}danger{% endif %}">
+                        {% if sales_trend > 0 %}↑{% else %}↓{% endif %} {{ sales_trend }}% from yesterday
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Your Sales Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Your Sales Today</h5>
+                    <p class="card-text display-4">{{ your_sales_count }}</p>
+                    <p class="text-{% if your_sales_trend > 0 %}success{% else %}danger{% endif %}">
+                        {% if your_sales_trend > 0 %}↑{% else %}↓{% endif %} {{ your_sales_trend }}% from yesterday
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Inventory Status Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Inventory Status</h5>
+                    <p class="card-text">Total Products: {{ total_products }}</p>
+                    <p class="card-text text-danger">Low Stock Items: {{ low_stock_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <!-- Billing Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Billing</h5>
+                    <p class="card-text">Create new bills and process sales</p>
+                    <a href="{{ url_for('staff_billing') }}" class="btn btn-info btn-lg w-100">
+                        <i class="fas fa-file-invoice"></i> New Bill
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Today's Sales Report Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Today's Sales Report</h5>
+                    <p class="card-text">View detailed sales report for today</p>
+                    <a href="{{ url_for('today_sales') }}" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-chart-bar"></i> View Report
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Low Stock Alert Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Low Stock Alert</h5>
+                    <p class="card-text">Check items that need restocking</p>
+                    <a href="{{ url_for('low_stock_items') }}" class="btn btn-warning btn-lg w-100">
+                        <i class="fas fa-exclamation-triangle"></i> Check Stock
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Sales Table -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Recent Sales</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sale in recent_sales %}
+                                <tr>
+                                    <td>{{ sale.sale_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ sale.product.name }}</td>
+                                    <td>{{ sale.quantity }}</td>
+                                    <td>{{ sale.total_price|currency }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

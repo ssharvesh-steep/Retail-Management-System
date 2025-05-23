@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-wrapper">
+        <!-- Left side - Login Form -->
+        <div class="login-form-container">
+            <div class="login-header">
+                <h1>Welcome Back</h1>
+                <p class="text-muted">Please login to your account</p>
+            </div>
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-danger">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('login') }}" class="login-form">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-icon">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        {{ form.username(class="form-control", placeholder="Username") }}
+                    </div>
+                    {% if form.username.errors %}
+                        <div class="error-message">
+                            {% for error in form.username.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-icon">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        {{ form.password(class="form-control", placeholder="Password") }}
+                        <span class="password-toggle" onclick="togglePassword()">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="error-message">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group remember-me">
+                    {{ form.remember_me(class="form-check-input") }}
+                    <label class="form-check-label" for="remember_me">Remember me</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-login">
+                    <span>Login</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+
+                <div class="login-footer">
+                    <a href="{{ url_for('reset_password_request') }}" class="forgot-password">Forgot Password?</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right side - Decorative -->
+        <div class="login-decoration">
+            <div class="decoration-content">
+                <h2>Retail Management System</h2>
+                <p>Streamline your inventory, track sales, and manage your business efficiently.</p>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Real-time Analytics</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-boxes"></i>
+                        <span>Inventory Tracking</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-users"></i>
+                        <span>User Management</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 20px;
+    }
+
+    .login-wrapper {
+        display: flex;
+        width: 1000px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .login-form-container {
+        flex: 1;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .login-header {
+        margin-bottom: 40px;
+        text-align: center;
+    }
+
+    .login-header h1 {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .input-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-group-icon {
+        position: absolute;
+        left: 15px;
+        color: #6c757d;
+        z-index: 1;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px 12px 45px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 15px;
+        cursor: pointer;
+        color: #6c757d;
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .login-footer {
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    .forgot-password {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .login-decoration {
+        flex: 1;
+        background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+        padding: 40px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .decoration-content {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .decoration-content h2 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    .decoration-content p {
+        margin-bottom: 30px;
+        opacity: 0.9;
+    }
+
+    .features-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .feature-item i {
+        font-size: 1.5rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .error-message {
+        color: #e74c3c;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    .alert-danger {
+        color: #a94442;
+        background-color: #f2dede;
+        border-color: #ebccd1;
+    }
+
+    @media (max-width: 768px) {
+        .login-wrapper {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .login-decoration {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    function togglePassword() {
+        const passwordInput = document.querySelector('input[name="password"]');
+        const toggleIcon = document.querySelector('.password-toggle i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+</script>
+{% endblock %} 

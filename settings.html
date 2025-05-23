@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>System Settings</h2>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('system_settings') }}">
+                <div class="mb-3">
+                    <label for="setting_name" class="form-label">Setting Name</label>
+                    <input type="text" class="form-control" id="setting_name" name="setting_name" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="setting_value" class="form-label">Setting Value</label>
+                    <input type="text" class="form-control" id="setting_value" name="setting_value" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Update Setting</button>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Database Backup</h5>
+        </div>
+        <div class="card-body">
+            <p>Create a backup of the database</p>
+            <form method="POST" action="{{ url_for('backup_database') }}">
+                <button type="submit" class="btn btn-primary">Create Backup</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

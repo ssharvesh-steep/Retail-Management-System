@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-shopping-cart text-primary me-2"></i>
+                        New Sale
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('staff_billing') }}" id="billingForm">
+                        <div id="items-container">
+                            <!-- Initial item row -->
+                            <div class="item-row mb-3">
+                                <div class="row align-items-end">
+                                    <div class="col-md-5">
+                                        <label for="product-select-1" class="form-label">Product</label>
+                                        <select id="product-select-1" class="form-select product-select" name="products[]" required>
+                                            <option value="">Select a product...</option>
+                                {% for product in products %}
+                                            <option value="{{ product.id }}" data-price="{{ product.price }}" data-stock="{{ product.inventory.quantity }}">
+                                                {{ product.name }} - ₹{{ product.price }} (Stock: {{ product.inventory.quantity }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="quantity-input-1" class="form-label">Quantity</label>
+                                        <input type="number" id="quantity-input-1" class="form-control quantity-input" 
+                                               name="quantities[]" min="1" value="1" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Item Total</label>
+                                        <div class="form-control-plaintext item-total">₹0.00</div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-danger remove-item d-none" title="Remove item">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-outline-primary" id="add-item">
+                                <i class="fas fa-plus me-2"></i>Add Another Item
+                            </button>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Sale Summary</h5>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Total Items:</span>
+                                            <span id="total-items">0</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Total Amount:</span>
+                                            <span id="total-price" class="fw-bold">₹0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submit-bill">
+                                <i class="fas fa-check me-2"></i>Complete Sale
+                            </button>
+                            <a href="{{ url_for('staff_dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const itemsContainer = document.getElementById('items-container');
+    const addItemButton = document.getElementById('add-item');
+    const totalPriceDisplay = document.getElementById('total-price');
+    const totalItemsDisplay = document.getElementById('total-items');
+    const billingForm = document.getElementById('billingForm');
+    let rowCounter = 1;
+    
+    function updateItemTotal(row) {
+        const productSelect = row.querySelector('.product-select');
+        const quantityInput = row.querySelector('.quantity-input');
+        const itemTotal = row.querySelector('.item-total');
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        
+        if (selectedOption && selectedOption.value) {
+            const price = parseFloat(selectedOption.dataset.price) || 0;
+        const quantity = parseInt(quantityInput.value) || 0;
+        const total = price * quantity;
+            itemTotal.textContent = `₹${total.toFixed(2)}`;
+        } else {
+            itemTotal.textContent = '₹0.00';
+        }
+        updateTotalPrice();
+    }
+    
+    function updateTotalPrice() {
+        let total = 0;
+        let totalItems = 0;
+        document.querySelectorAll('.item-row').forEach(row => {
+            const productSelect = row.querySelector('.product-select');
+            const quantityInput = row.querySelector('.quantity-input');
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            
+            if (selectedOption && selectedOption.value) {
+                const price = parseFloat(selectedOption.dataset.price) || 0;
+                const quantity = parseInt(quantityInput.value) || 0;
+                total += price * quantity;
+                totalItems += quantity;
+            }
+        });
+        totalPriceDisplay.textContent = `₹${total.toFixed(2)}`;
+        totalItemsDisplay.textContent = totalItems;
+    }
+    
+    function updateRemoveButtons() {
+        const removeButtons = document.querySelectorAll('.remove-item');
+        removeButtons.forEach(button => {
+            button.classList.toggle('d-none', removeButtons.length === 1);
+        });
+    }
+    
+    function createItemRow() {
+        rowCounter++;
+        const template = document.querySelector('.item-row').cloneNode(true);
+        
+        // Update IDs for accessibility
+        const productSelect = template.querySelector('.product-select');
+        const quantityInput = template.querySelector('.quantity-input');
+        productSelect.id = `product-select-${rowCounter}`;
+        quantityInput.id = `quantity-input-${rowCounter}`;
+        
+        // Update labels
+        const productLabel = template.querySelector('label[for^="product-select"]');
+        const quantityLabel = template.querySelector('label[for^="quantity-input"]');
+        productLabel.setAttribute('for', `product-select-${rowCounter}`);
+        quantityLabel.setAttribute('for', `quantity-input-${rowCounter}`);
+        
+        // Reset values
+        productSelect.value = '';
+        quantityInput.value = '1';
+        template.querySelector('.item-total').textContent = '₹0.00';
+        template.querySelector('.remove-item').classList.remove('d-none');
+        
+        // Add event listeners
+        productSelect.addEventListener('change', () => updateItemTotal(template));
+        quantityInput.addEventListener('input', () => updateItemTotal(template));
+        template.querySelector('.remove-item').addEventListener('click', function() {
+            template.remove();
+            updateTotalPrice();
+            updateRemoveButtons();
+        });
+        
+        return template;
+    }
+    
+    addItemButton.addEventListener('click', function() {
+        const newRow = createItemRow();
+        itemsContainer.appendChild(newRow);
+        updateRemoveButtons();
+    });
+    
+    // Add event listeners to initial row
+    const initialRow = document.querySelector('.item-row');
+    initialRow.querySelector('.product-select').addEventListener('change', () => updateItemTotal(initialRow));
+    initialRow.querySelector('.quantity-input').addEventListener('input', () => updateItemTotal(initialRow));
+    
+    // Form submission validation
+    billingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const productSelects = document.querySelectorAll('.product-select');
+        let hasSelectedProduct = false;
+        let formData = new FormData();
+        
+        productSelects.forEach((select, index) => {
+            if (select.value) {
+                hasSelectedProduct = true;
+                formData.append('products[]', select.value);
+                formData.append('quantities[]', select.closest('.item-row').querySelector('.quantity-input').value);
+            }
+        });
+        
+        if (!hasSelectedProduct) {
+            alert('Please select at least one product!');
+            return;
+        }
+        
+        // Submit the form
+        fetch(billingForm.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                return response.text();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while processing the sale. Please try again.');
+        });
+    });
+    
+    // Initial calculation
+    updateTotalPrice();
+    updateRemoveButtons();
+});
+</script>
+
+<style>
+.card {
+    border-radius: 0.5rem;
+}
+.btn {
+    border-radius: 0.5rem;
+}
+.item-row {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    background-color: #fff;
+}
+.form-control-plaintext {
+    font-weight: 500;
+    color: #0d6efd;
+}
+</style>
+{% endblock %} 
